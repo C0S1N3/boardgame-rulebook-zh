@@ -14,6 +14,11 @@
 
 > Demo 是仓库自带的合成样例（`examples/make_sample.py`），不含任何受版权保护的规则书。
 
+## 链接
+
+- GitHub：https://github.com/C0S1N3/boardgame-rulebook-zh
+- ClawHub：`boardgame-rulebook-zh`（页面：https://clawhub.ai/C0S1N3/skills/boardgame-rulebook-zh ；首次发布需安全扫描，若暂时 404 请稍后再试）
+
 ## 为什么不会把图弄乱
 
 1. 对每一行文字加 redaction 时设置 `fill=False`、`images=NONE`、`graphics=NONE`：只擦字，保留所有图片和线条。
