@@ -1,95 +1,97 @@
 # 桌游规则书汉化 · Board Game Rulebook ZH
 
-把英文桌游 PDF 规则书汉化成中文，**插图、棋盘、卡牌图、图标、表格线和原版版式保持原位**。
+Turns English board-game PDF rulebooks into Chinese, while **illustrations, boards, card art, icons, table rules and the original layout stay exactly in place**.
 
-这是一个 Agent Skill（`SKILL.md`），也可以直接当命令行工具用：
+This is an Agent Skill (`SKILL.md`) that can also be used directly as a command-line tool:
 
-- 内置桌游术语表（worker placement / deck-building / meeple / token / exhaust …）；
-- 只擦文字层，不擦位图/矢量图；
-- 表格单元、双栏、页眉页脚、内嵌图标单独处理；
-- 渲染后自动比对位图/矢量图摘要，图文错位直接报错；
-- 输出 QA 报告 + 左右对照预览，供逐页目检。
+- Built-in board-game glossary (worker placement / deck-building / meeple / token / exhaust …);
+- Erases only the text layer, never bitmaps/vector graphics;
+- Table cells, two-column layouts, headers/footers and inline icons are handled separately;
+- After rendering it automatically compares bitmap/vector digests, and reports an error outright if any text drifts onto art;
+- Outputs a QA report + side-by-side preview for page-by-page visual checking.
 
-![示例：左原文，右译文](examples/demo_page1.png)
+![Example: original on the left, translation on the right](examples/demo_page1.png)
 
-> Demo 是仓库自带的合成样例（`examples/make_sample.py`），不含任何受版权保护的规则书。
+> The demo is a synthetic sample shipped with this repo (`examples/make_sample.py`); it contains no copyrighted rulebook.
 
-## 链接
+[简体中文 README](README.zh-CN.md)
 
-- GitHub：https://github.com/C0S1N3/boardgame-rulebook-zh
-- ClawHub：`boardgame-rulebook-zh`（页面：https://clawhub.ai/C0S1N3/skills/boardgame-rulebook-zh ；首次发布需安全扫描，若暂时 404 请稍后再试）
+## Links
 
-## 为什么不会把图弄乱
+- GitHub: https://github.com/C0S1N3/boardgame-rulebook-zh
+- ClawHub: `boardgame-rulebook-zh` (page: https://clawhub.ai/C0S1N3/skills/boardgame-rulebook-zh ; the first release needs a security scan, so if it 404s for now, please try again later)
 
-1. 对每一行文字加 redaction 时设置 `fill=False`、`images=NONE`、`graphics=NONE`：只擦字，保留所有图片和线条。
-2. 译文写回原段落 bbox；空间不足时只向下借用空白，不进入其他文字、图片或表格单元。
-3. 表格单元译文被夹在 cell 内；内嵌图标用绕图排版。
-4. 渲染后重新打开输出 PDF，比对：
-   - 位图数量、内容摘要、位置；
-   - 矢量图数量/摘要；
-   - 页面尺寸、旋转、页数；
-   - 译文是否完整、有没有压到图/文字/表格线。
+## Why it never scrambles the art
 
-任何一项失败，`report.md` 会报 error，不应交付。
+1. Every text line is redacted with `fill=False`, `images=NONE`, `graphics=NONE`: only the glyphs are erased, all images and lines preserved.
+2. The translation is written back into the original paragraph bbox; when space runs short it only borrows whitespace downwards, never entering other text, images or table cells.
+3. Translations for table cells are kept inside the cell; inline icons get text wrapped around them.
+4. After rendering, the output PDF is reopened and compared:
+   - bitmap count, content digests, positions;
+   - vector graphic count/digests;
+   - page size, rotation, page count;
+   - whether the translation is complete, and whether it has overlapped any art/text/table rules.
 
-## 安装
+If any item fails, `report.md` reports an error, and the job must not be delivered.
+
+## Installation
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
 - Python 3.9+
-- PyMuPDF（测试 1.26.5）
+- PyMuPDF (tested with 1.26.5)
 - Pillow
 
-中文字体会自动选择：Microsoft YaHei / SimHei / SimSun（Windows）、PingFang / STHeiti（macOS）、Noto Sans CJK / WQY（Linux）；都没有时用 PyMuPDF 内置 CJK 字体。
+The Chinese font is chosen automatically: Microsoft YaHei / SimHei / SimSun (Windows), PingFang / STHeiti (macOS), Noto Sans CJK / WQY (Linux); if none of these exists, PyMuPDF's built-in CJK font is used.
 
-## 快速开始
+## Quick start
 
 ```bash
 python scripts/extract.py rulebook.pdf -o work
-# 读 work/source.md，填写 work/translations.tsv
-# 检查/补充 work/termbase.tsv
+# read work/source.md and fill in work/translations.tsv
+# check/complete work/termbase.tsv
 python scripts/render.py rulebook.pdf -w work -o out
-# 看 out/qa/report.md 和 out/qa/pages/page_*.png
+# look at out/qa/report.md and out/qa/pages/page_*.png
 ```
 
-最终文件：
+Final files:
 
-- `out/rulebook_zh.pdf` — 原位汉化 PDF
-- `out/qa/report.md` — 中文 QA 报告
-- `work/termbase.tsv` — 项目术语库
-- `out/qa/pages/*.png` — 左右对照预览
+- `out/rulebook_zh.pdf` — the in-place localized PDF
+- `out/qa/report.md` — the QA report (Chinese)
+- `work/termbase.tsv` — the project termbase
+- `out/qa/pages/*.png` — side-by-side previews
 
-只有 QA **error = 0** 才应交付；warning 需要逐条复核。
+Deliver only when QA reports **error = 0**; every warning must be reviewed one by one.
 
-## 作为 Skill 使用
+## Using it as a Skill
 
-把整个目录放到 Agent 的 skills 目录即可，例如 Qoder：
+Drop the whole directory into the agent's skills directory, e.g. for Qoder:
 
 ```text
 ~/.qoder-cn/skills/boardgame-rulebook-zh/SKILL.md
 ```
 
-或按 ClawHub/OpenClaw 的 skill 目录规范安装。  
-Agent 读到“汉化桌游规则书 / translate board game rulebook PDF / 术语要准确 / 图片不能错位”等请求时，应使用本 skill。
+Or install it following the ClawHub/OpenClaw skill directory convention.  
+When an agent gets a request like "localize a board-game rulebook / translate board game rulebook PDF / terminology must be accurate / images must not shift", it should use this skill.
 
-## 术语
+## Terminology
 
-- `references/glossary.csv`：推荐译法 + avoid + wrong，供脚本查表和 QA。
-- `references/glossary-notes.md`：易混词解释（deck/deck-building、token/marker/counter、meeple/pawn、exhaust/tap、reveal/flip…）。
-- `references/style.md`：中文文风、句式、量词、标点、卡牌名规则。
-- `references/official-titles.md`：常见游戏官方/通行中文名；不参与自动替换。
+- `references/glossary.csv`: recommended renderings + avoid + wrong, for script lookups and QA.
+- `references/glossary-notes.md`: explanations of easily confused terms (deck/deck-building, token/marker/counter, meeple/pawn, exhaust/tap, reveal/flip…).
+- `references/style.md`: Chinese style, sentence patterns, measure words, punctuation, card-name rules.
+- `references/official-titles.md`: official/common Chinese titles of well-known games; not used for automatic replacement.
 
-项目里用 `work/termbase.tsv` 定死译名；官方中文版优先。QA 对术语表里明确的错译（如 meeple → 米普）报 error，对建议译法报 info。
+Projects pin down their renderings in `work/termbase.tsv`; official Chinese editions take priority. QA reports an error for clear mistranslations named in the glossary (e.g. rendering *meeple* as *mipu*), and info for merely suggested renderings.
 
-## 排版修正
+## Layout fixes
 
-自动放不下时：
+When it doesn't fit automatically:
 
-1. 先精简译文；
-2. 再用 `work/layout_overrides.json` 改安全排版框；
-3. 最后才接受更小字号。
+1. Tighten the translation first;
+2. then adjust the safe layout box via `work/layout_overrides.json`;
+3. only then accept a smaller font size.
 
 ```json
 {
@@ -97,32 +99,32 @@ Agent 读到“汉化桌游规则书 / translate board game rulebook PDF / 术�
     "box": [28, 423, 292, 540],
     "font_size": 10.0,
     "align": "left",
-    "note": "加宽 10pt，避免逗号落到行首"
+    "note": "widen by 10pt so the comma doesn't land at line start"
   }
 }
 ```
 
-表格单元的 override 会被夹回 cell；不会越过边框。
+Overrides for table cells are clamped back into the cell; they never cross the border.
 
-## 自测
+## Self-test
 
 ```bash
 python examples/selftest.py --negative
 ```
 
-- 正向：合成双栏规则书（表格、位图、矢量图标、内嵌图标）→ 34 段、9 个表格单元、2 个内嵌图标，0 error / 0 warning；位图、矢量图、页面几何全部不变。
-- 负向：故意写错术语（米普）、漏译、表格溢出、emoji 缺字；QA 以退出码 1 拦截。
+- Positive: a synthetic two-column rulebook (tables, bitmaps, vector icons, inline icons) → 34 paragraphs, 9 table cells, 2 inline icons, 0 error / 0 warning; bitmaps, vector graphics and page geometry all unchanged.
+- Negative: deliberately wrong terminology (*mipu* for *meeple*), missing translations, table overflow, missing emoji glyphs; QA blocks it with exit code 1.
 
-已本地验证一页真实出版社规则书（*Age of Conan*，FFG，42 段，双栏、羊皮纸满版底图、大幅人物插画、项目符号列表）：0 error / 0 warning（用一次 layout override 修正行首标点），位图/矢量图摘要不变。原 PDF 受版权保护，不随仓库分发。
+One page of a real publisher rulebook (*Age of Conan*, FFG, 42 paragraphs, two columns, full-page parchment background, large character illustrations, bulleted lists) has been verified locally: 0 error / 0 warning (with one layout override to fix line-leading punctuation), bitmap/vector digests unchanged. The original PDF is copyrighted and is not distributed with the repo.
 
-## 不支持
+## Not supported
 
-- 扫描版/纯图片 PDF、矢量描边文字：不会做覆盖式汉化，见 `references/scanned-pdfs.md`。
-- 逐行竖排文字：保留原文并警告。
-- 复杂表单、批注、嵌套表格：需要目检。
-- 重排页面/改纸张尺寸：本工具只做原位汉化，不重新设计版式。
+- Scanned / image-only PDFs and vector-outlined text: no overlay-style localization is done, see `references/scanned-pdfs.md`.
+- Line-by-line vertical text: the original is kept and a warning is raised.
+- Complex forms, annotations, nested tables: these need manual review.
+- Re-flowing pages / changing paper size: this tool only does in-place localization, it does not redesign the layout.
 
-## 目录
+## Directory
 
 ```text
 SKILL.md
@@ -144,6 +146,6 @@ examples/
   demo_page1.png
 ```
 
-## 许可
+## License
 
-MIT。仅用于你有权翻译的文档；不要把受版权保护的原始规则书或整页译文提交到公开仓库。
+MIT. Only for documents you have the right to translate; do not commit copyrighted original rulebooks or full-page translations to public repositories.
